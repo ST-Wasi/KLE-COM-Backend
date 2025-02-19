@@ -8,6 +8,7 @@ const jwt = require("jsonwebtoken");
 const { isUser } = require("./middlewares/isUser");
 const cors = require("cors");
 const { Cart } = require("./modals/Cart");
+const dotenv = require("dotenv").config();
 
 const app = express();
 app.use(express.json());
@@ -15,7 +16,7 @@ app.use(cors());
 app.use(morgan("dev"));
 
 mongoose
-  .connect("mongodb://localhost:27017/klecommerce")
+  .connect(process.env.DB_URL)
   .then(() => {
     console.log("MongoDb Is Connected");
   })
@@ -310,7 +311,9 @@ app.delete("/cart/product/delete", async (req, res) => {
 
   try {
     const decodedToken = jwt.verify(token, "supersecret");
-    const user = await User.findOne({ email: decodedToken.email }).populate("cart");
+    const user = await User.findOne({ email: decodedToken.email }).populate(
+      "cart"
+    );
 
     if (!user) {
       return res.status(404).json({ message: "User Not Found" });
